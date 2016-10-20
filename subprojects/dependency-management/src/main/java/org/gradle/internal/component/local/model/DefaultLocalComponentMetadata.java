@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import org.gradle.api.artifacts.ConfigurationRole;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
@@ -70,9 +71,9 @@ public class DefaultLocalComponentMetadata implements LocalComponentMetadata, Bu
         allArtifacts.put(configuration, artifactMetadata);
     }
 
-    public void addConfiguration(String name, String description, Set<String> extendsFrom, Set<String> hierarchy, boolean visible, boolean transitive, Map<String, String> attributes, TaskDependency buildDependencies) {
+    public void addConfiguration(String name, String description, Set<String> extendsFrom, Set<String> hierarchy, boolean visible, boolean transitive, Map<String, String> attributes, ConfigurationRole role, TaskDependency buildDependencies) {
         assert hierarchy.contains(name);
-        DefaultLocalConfigurationMetadata conf = new DefaultLocalConfigurationMetadata(name, description, visible, transitive, extendsFrom, hierarchy, attributes, buildDependencies);
+        DefaultLocalConfigurationMetadata conf = new DefaultLocalConfigurationMetadata(name, description, visible, transitive, extendsFrom, hierarchy, attributes, role, buildDependencies);
         allConfigurations.put(name, conf);
     }
 
@@ -143,11 +144,20 @@ public class DefaultLocalComponentMetadata implements LocalComponentMetadata, Bu
         private final Set<String> extendsFrom;
         private final Map<String, String> attributes;
         private final TaskDependency buildDependencies;
+        private final ConfigurationRole role;
 
         private List<DependencyMetadata> configurationDependencies;
         private ModuleExclusion configurationExclude;
 
-        private DefaultLocalConfigurationMetadata(String name, String description, boolean visible, boolean transitive, Set<String> extendsFrom, Set<String> hierarchy, Map<String, String> attributes, TaskDependency buildDependencies) {
+        private DefaultLocalConfigurationMetadata(String name,
+                                                  String description,
+                                                  boolean visible,
+                                                  boolean transitive,
+                                                  Set<String> extendsFrom,
+                                                  Set<String> hierarchy,
+                                                  Map<String, String> attributes,
+                                                  ConfigurationRole role,
+                                                  TaskDependency buildDependencies) {
             this.name = name;
             this.description = description;
             this.transitive = transitive;
@@ -155,6 +165,7 @@ public class DefaultLocalComponentMetadata implements LocalComponentMetadata, Bu
             this.hierarchy = hierarchy;
             this.extendsFrom = extendsFrom;
             this.attributes = attributes;
+            this.role = role;
             this.buildDependencies = buildDependencies;
         }
 
@@ -199,6 +210,11 @@ public class DefaultLocalComponentMetadata implements LocalComponentMetadata, Bu
         @Override
         public Map<String, String> getAttributes() {
             return attributes;
+        }
+
+        @Override
+        public ConfigurationRole getRole() {
+            return role;
         }
 
         public List<DependencyMetadata> getDependencies() {

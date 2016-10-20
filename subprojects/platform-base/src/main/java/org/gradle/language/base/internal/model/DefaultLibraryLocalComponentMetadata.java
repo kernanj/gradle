@@ -16,6 +16,7 @@
 package org.gradle.language.base.internal.model;
 
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.ConfigurationRole;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ModuleVersionSelector;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
@@ -85,6 +86,7 @@ public class DefaultLibraryLocalComponentMetadata extends DefaultLocalComponentM
                 true,
                 true,
                 null,
+                ConfigurationRole.FOR_RESOLUTION,
                 entry.getValue());
         }
         return metaData;
