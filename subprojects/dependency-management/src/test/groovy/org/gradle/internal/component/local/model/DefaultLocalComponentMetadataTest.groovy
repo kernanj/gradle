@@ -16,6 +16,7 @@
 
 package org.gradle.internal.component.local.model
 
+import org.gradle.api.artifacts.ConfigurationRole
 import org.gradle.api.artifacts.PublishArtifact
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier
 import org.gradle.api.internal.artifacts.DefaultPublishArtifactSet
@@ -41,8 +42,8 @@ class DefaultLocalComponentMetadataTest extends Specification {
 
     def "can lookup configuration after it has been added"() {
         when:
-        metadata.addConfiguration("super", "description", [] as Set, ["super"] as Set, false, false, null, taskDep)
-        metadata.addConfiguration("conf", "description", ["super"] as Set, ["super", "conf"] as Set, true, true, null, taskDep)
+        metadata.addConfiguration("super", "description", [] as Set, ["super"] as Set, false, false, null, ConfigurationRole.FOR_RESOLUTION, taskDep)
+        metadata.addConfiguration("conf", "description", ["super"] as Set, ["super", "conf"] as Set, true, true, null, ConfigurationRole.FOR_RESOLUTION, taskDep)
 
         then:
         metadata.configurationNames == ['conf', 'super'] as Set
@@ -81,7 +82,7 @@ class DefaultLocalComponentMetadataTest extends Specification {
     }
 
     private addConfiguration(String name) {
-        metadata.addConfiguration(name, "", [] as Set, [name] as Set, true, true, null, taskDep)
+        metadata.addConfiguration(name, "", [] as Set, [name] as Set, true, true, null, ConfigurationRole.FOR_RESOLUTION, taskDep)
     }
 
     def addArtifact(String configuration, IvyArtifactName name, File file) {
@@ -186,9 +187,9 @@ class DefaultLocalComponentMetadataTest extends Specification {
         dependency2.moduleConfiguration >> "child"
 
         when:
-        metadata.addConfiguration("conf", null, [] as Set, ["conf"] as Set, true, true, null, Stub(TaskDependency))
-        metadata.addConfiguration("child", null, ["conf"] as Set, ["conf", "child"] as Set, true, true, null, Stub(TaskDependency))
-        metadata.addConfiguration("other", null, [] as Set, ["other"] as Set, true, true, null, Stub(TaskDependency))
+        metadata.addConfiguration("conf", null, [] as Set, ["conf"] as Set, true, true, null, ConfigurationRole.FOR_RESOLUTION, Stub(TaskDependency))
+        metadata.addConfiguration("child", null, ["conf"] as Set, ["conf", "child"] as Set, true, true, null,ConfigurationRole.FOR_RESOLUTION,  Stub(TaskDependency))
+        metadata.addConfiguration("other", null, [] as Set, ["other"] as Set, true, true, null, ConfigurationRole.FOR_RESOLUTION, Stub(TaskDependency))
         metadata.addDependency(dependency1)
         metadata.addDependency(dependency2)
 
@@ -200,8 +201,8 @@ class DefaultLocalComponentMetadataTest extends Specification {
 
     def "builds and caches exclude rules for a configuration"() {
         given:
-        metadata.addConfiguration("compile", null, [] as Set, ["compile"] as Set, true, true, null, Stub(TaskDependency))
-        metadata.addConfiguration("runtime", null, ["compile"] as Set, ["compile", "runtime"] as Set, true, true, null, Stub(TaskDependency))
+        metadata.addConfiguration("compile", null, [] as Set, ["compile"] as Set, true, true, null, ConfigurationRole.FOR_RESOLUTION, Stub(TaskDependency))
+        metadata.addConfiguration("runtime", null, ["compile"] as Set, ["compile", "runtime"] as Set, true, true, null, ConfigurationRole.FOR_RESOLUTION, Stub(TaskDependency))
 
         def rule1 = new DefaultExclude("group1", "module1", ["compile"] as String[], PatternMatchers.EXACT)
         def rule2 = new DefaultExclude("group1", "module1", ["runtime"] as String[], PatternMatchers.EXACT)
